@@ -1,7 +1,7 @@
 :root {
     --bg-main: #f4f7fa;
-    --card-bg: rgba(255, 255, 255, 0.85);
-    --border-color: rgba(226, 232, 240, 0.8);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --border-color: rgba(226, 232, 240, 0.9);
     --text-primary: #1e293b;
     --text-secondary: #64748b;
     --dark-blue: #0f172a;
@@ -15,8 +15,8 @@
 
 [data-bs-theme="dark"] {
     --bg-main: #0b0f19;
-    --card-bg: rgba(22, 28, 45, 0.9);
-    --border-color: rgba(51, 65, 85, 0.5);
+    --card-bg: rgba(22, 28, 45, 0.95);
+    --border-color: rgba(51, 65, 85, 0.6);
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
     --dark-blue: #f1f5f9;
@@ -69,8 +69,11 @@ body {
     transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
+/* Correção da Barra Lateral: Altura automática para não atropelar as ações rápidas */
 .info-card {
-    max-height: 320px;
+    max-height: none !important;
+    height: auto;
+    margin-bottom: 2rem !important;
 }
 
 /* Elementos de Identidade Visual e Avatares */
@@ -129,12 +132,16 @@ body {
 }
 
 /* Cards de Ações Rápidas */
+.quick-actions-container {
+    margin-top: 0.5rem;
+}
+
 .quick-action-card {
     width: 100%;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    padding: 12px;
+    padding: 16px 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -336,7 +343,7 @@ body {
     color: var(--text-primary);
 }
 
-/* Customização Responsiva de Scroll */
+/* Customização de Rolagem */
 ::-webkit-scrollbar {
     width: 6px;
 }
@@ -348,8 +355,18 @@ body {
     border-radius: 10px;
 }
 
-@media(max-width: 991.98s) {
+/* Responsividade de Alinhamento das Telas */
+@media(min-width: 992px) {
+    .h-100-container {
+        height: calc(100vh - 140px) !important;
+    }
+    .main-wrapper {
+        height: calc(100vh - 70px);
+    }
+}
+
+@media(max-width: 991.98px) {
     .main-wrapper { height: auto; }
-    .h-100-container { height: 600px; }
+    .h-100-container { height: 550px; }
     .info-card { max-height: none; }
 }

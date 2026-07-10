@@ -1,6 +1,4 @@
-// Conexão e Regras de Negócio com a API do OpenRouter
 const ApiService = {
-    // Prompt de Sistema rígido, atuando na governança clínica do Agente
     systemPrompt: `Você é Urbanovichi. Você trabalha na Clínica Urbanovichi. Seu objetivo é oferecer atendimento acolhedor, educado, humanizado e profissional.
 Você pode: orientar pacientes; explicar exames; explicar convênios; informar horários; informar localização; explicar especialidades; responder dúvidas gerais; orientar preparo para exames; ajudar no processo de agendamento.
 Você NÃO pode: fornecer diagnósticos definitivos; receitar medicamentos; substituir um médico; afirmar que alguém possui uma doença.
@@ -11,29 +9,27 @@ Sempre fale em português do Brasil. Utilize linguagem humanizada, clara, acolhe
         const settings = Config.get();
         
         if (!settings.openRouterKey) {
-            throw new Error("Chave de API do OpenRouter ausente. Por favor, configure nas configurações do sistema.");
+            throw new Error("Chave de API da Groq ausente. Verifique as configurações ou as variáveis do Render.");
         }
 
-        // Montagem do payload incluindo histórico para manutenção de contexto
         const messages = [
             { role: "system", content: this.systemPrompt },
             ...chatHistory
         ];
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // Timeout de 30 segundos
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
 
         try {
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            // FORÇANDO O ENDPOINT EXCLUSIVO DA GROQ AQUI
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${settings.openRouterKey}`,
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": window.location.origin,
-                    "X-Title": settings.clinicName
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: settings.aiModel,
+                    model: "llama-3.3-70b-versatile",
                     messages: messages,
                     temperature: 0.5
                 }),
@@ -44,21 +40,18 @@ Sempre fale em português do Brasil. Utilize linguagem humanizada, clara, acolhe
 
             if (!response.ok) {
                 const errData = await response.json().catch(() => ({}));
-                throw new Error(errData?.error?.message || `Erro na API HTTP: ${response.status}`);
+                throw new Error(errData?.error?.message || `Erro HTTP Groq: ${response.status}`);
             }
 
             const data = await response.json();
             if (data?.choices?.[0]?.message?.content) {
                 return data.choices[0].message.content;
             } else {
-                throw new Error("Resposta inválida recebida da inteligência artificial.");
+                throw new Error("Resposta em branco vinda da Groq.");
             }
 
         } catch (error) {
             clearTimeout(timeoutId);
-            if (error.name === 'AbortError') {
-                throw new Error("O servidor demorou muito para responder. Tente novamente.");
-            }
             throw error;
         }
     }

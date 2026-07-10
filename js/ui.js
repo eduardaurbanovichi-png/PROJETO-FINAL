@@ -32,10 +32,12 @@ const UI = {
         Config.updateKey("theme", nextTheme);
         
         const themeBtnIcon = document.querySelector("#themeToggleBtn i");
-        if (nextTheme === "dark") {
-            themeBtnIcon.className = "fa-solid fa-sun";
-        } else {
-            themeBtnIcon.className = "fa-solid fa-moon";
+        if (themeBtnIcon) {
+            if (nextTheme === "dark") {
+                themeBtnIcon.className = "fa-solid fa-sun";
+            } else {
+                themeBtnIcon.className = "fa-solid fa-moon";
+            }
         }
     },
 
@@ -46,7 +48,7 @@ const UI = {
     },
 
     showTypingIndicator() {
-        document.getElementById("typingIndicator").classList.remove("data-none", "d-none");
+        document.getElementById("typingIndicator").classList.remove("d-none");
         this.scrollToBottom();
     },
 
@@ -56,11 +58,15 @@ const UI = {
 
     scrollToBottom() {
         const chatBody = document.getElementById("chatBody");
-        chatBody.scrollTop = chatBody.scrollHeight;
+        if (chatBody) {
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
     },
 
     renderMessage(message, type, onComplete = null) {
         const chatBody = document.getElementById("chatBody");
+        if (!chatBody) return;
+
         const msgWrapper = document.createElement("div");
         msgWrapper.className = `chat-message-wrapper ${type} anim-fade-in-up`;
         
@@ -90,8 +96,8 @@ const UI = {
         chatBody.appendChild(msgWrapper);
         const textContainer = msgWrapper.querySelector(".message-text");
 
-        if (type === "ai" && onComplete === null) {
-            // Efeito máquina de escrever (letra por letra) para respostas em tempo real
+        // Correção aplicada aqui: Tratamento seguro caso onComplete seja booleano (true) ou omitido
+        if (type === "ai" && onComplete !== true) {
             let i = 0;
             textContainer.classList.add("typing-cursor");
             function typeWriter() {
@@ -102,17 +108,16 @@ const UI = {
                     setTimeout(typeWriter, 12);
                 } else {
                     textContainer.classList.remove("typing-cursor");
-                    if (onComplete) onComplete();
+                    if (typeof onComplete === "function") onComplete();
                 }
             }
             typeWriter();
         } else {
             textContainer.textContent = message;
             UI.scrollToBottom();
-            if (onComplete) onComplete();
+            if (typeof onComplete === "function") onComplete();
         }
 
-        // Event listener dinâmico para leitura por voz
         if (type === "ai") {
             msgWrapper.querySelector(".btn-speak")?.addEventListener("click", () => {
                 Chat.speakText(message);
